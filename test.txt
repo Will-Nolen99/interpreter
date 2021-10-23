@@ -1,0 +1,25 @@
+program
+int X;
+int YELLOW15;
+int Z;
+int A,BARK35, CAT;
+
+begin
+	X=25;
+	YELLOW15=11;
+	Z = 0;
+	BARK35=350;
+
+	read CAT, A;
+
+	if ![(X==YELLOW15)||(Z>0)] then
+		X=10*YELLOW15;
+	else
+		write BARK35;
+	end
+
+
+end
+
+
+

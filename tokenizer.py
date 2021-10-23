@@ -3,9 +3,11 @@ import sys
 
 
 class Tokenizer:
+
+
     messages = {"candidate": lambda token: print(f"Current token candidate: {token}"),
-                "word_id": lambda token: print(f"Added token id: {Tokenizer.reserved_words.index(token) + 1}\n\n"),
-                "symbol_id": lambda token: print(f"Added token id: {Tokenizer.symbols.index(token) + 12}\n\n"),
+                "word_id": lambda token: print(f"Added token id: {Tokenizer.reserved_words.index(token)+1}\n\n"),
+                "symbol_id": lambda token: print(f"Added token id: {Tokenizer.symbols.index(token)+12}\n\n"),
                 "id": lambda: print("Added token id: 32\n\n"),
                 "int": lambda: print("Added token id: 31\n\n"),
                 "odd": lambda line: print(f"Odd token candidate encountered: {line}\n"),
@@ -16,6 +18,8 @@ class Tokenizer:
                 "unknown": lambda symbol: print(f"{symbol} is unrecognized\n"),
                 "EOF": lambda: print("EOF found!\nAdded token id: 33\n")
                 }
+
+
 
     reserved_words = ["program",
                       "begin",
@@ -40,7 +44,7 @@ class Tokenizer:
     EOF_TOKEN_NUMBER = 33
 
     IDENTIFIER_REGEX = "\A[A-Z]+[0-9]*\Z"  # This does not account for length of identifier.
-    INTEGER_REGEX = "\A[\d]{1,8}\Z"  # This does length testing
+    INTEGER_REGEX = "\A[\d]{1,8}\Z"    # This does length testing
 
     # Create a tokenizer with source as the file path to the source code.
     def __init__(self, source, verbose=False):
@@ -49,6 +53,8 @@ class Tokenizer:
         self.token_stream_literal = []
         self.token_stream = []
         self.verbose = verbose
+
+        self.tokenize()
 
     def __message(self, message_type: str, value=None):
 
@@ -70,6 +76,7 @@ class Tokenizer:
 
         yield Tokenizer.END_OF_FILE
 
+
     def tokenize(self):
 
         line_reader = self.__read_line()
@@ -77,6 +84,7 @@ class Tokenizer:
         num = 1
 
         while current_line != "EOF":
+
             self.__process_line(current_line, num)
 
             current_line = next(line_reader)
@@ -88,11 +96,14 @@ class Tokenizer:
         self.token_stream_literal.append("EOF")
         self.token_stream.append(33)
 
+
+
         if self.verbose:
             print("Done Processing!")
             print("Final token Stream: ")
             print(self.token_stream_literal)
             print(self.token_stream)
+
 
     def __process_line(self, line: str, line_number: int) -> None:
 
@@ -107,6 +118,7 @@ class Tokenizer:
                 self.token_stream_literal.append(token)
                 self.token_stream.append(Tokenizer.reserved_words.index(token) + 1)
                 self.__message("word_id", token)
+
 
             # special char check
             elif token in Tokenizer.symbols:
@@ -126,6 +138,7 @@ class Tokenizer:
                 self.token_stream.append(31)
                 self.__message("int")
 
+
             # given string is not a direct token. It maybe multiple tokens with no whitespace between    
             else:
                 self.__break_into_tokens(token, line_number)
@@ -135,6 +148,7 @@ class Tokenizer:
 
         # order of check is the reverse of Tokenizer.symbols
         # followed by identifier followed by integer
+
 
         line = token_candidate.strip()  # this is added to reduce unwanted reference side effects. It may not be needed
 
@@ -194,6 +208,7 @@ class Tokenizer:
                 self.token_stream.append(31)
                 line = line[end_idx:]
 
+
         # By this point if there are characters left in the line they are not a recognizable token
         if len(line) > 0:
             # print error message if token is not recognized and exit process
@@ -201,6 +216,7 @@ class Tokenizer:
             self.__message("unknown_line", line_number)
             self.__message("unknown", line)
             exit()
+
 
     def getToken(self) -> int:
         return self.token_stream[0]
@@ -210,30 +226,19 @@ class Tokenizer:
         self.token_stream.pop(0)
 
     def intVal(self) -> int:
-        return self.token_stream_literal[0]
+
+        if self.getToken() == 31:
+            return self.token_stream_literal[0]
+        else:
+            print("Next token in token stream is not an integer!")
+            print("Next token id is: ", self.getToken())
+            exit()
 
     def idName(self) -> str:
-        return self.token_stream_literal[0]
 
-
-def main():
-    file = sys.argv[1] if len(sys.argv) > 1 else input("Enter a file path: ")
-
-    if "-v" in sys.argv:
-        tokenizer = Tokenizer(file, True)
-    else:
-        tokenizer = Tokenizer(file)
-
-    tokenizer.tokenize()
-
-    token = tokenizer.getToken()
-    print(token)
-
-    while token != 33:
-        tokenizer.skipToken()
-        token = tokenizer.getToken()
-        print(token)
-
-
-if __name__ == "__main__":
-    main()
+        if self.getToken() == 32:
+            return self.token_stream_literal[0]
+        else:
+            print("Next token in token stream is not an identifier!")
+            print("Next token id is: ", self.getToken())
+            exit()
