@@ -9,7 +9,7 @@ begin
 	while (COUNT < BOUND) loop
 		BOOLEAN = 1;
 		INCREMENT = 2;
-		while [(INCREMENT < COUNT) && (BOOLEAN == 1)] loop
+		while (INCREMENT < COUNT) loop
 			DIVISOR = 0;
 			while (DIVISOR <= COUNT) loop
 				if (DIVISOR == COUNT) then

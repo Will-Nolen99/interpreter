@@ -1,3 +1,4 @@
+from typing import ValuesView
 from Node import Node
 from tokenizer import Tokenizer
 
@@ -79,24 +80,24 @@ class Program(Node):
     def print(self, out):
         
         print("program", file=out)
-        print(file=out)
+        #print(file=out)
         Program.indent()
 
         self.__decl_seq.print(out)
 
         Program.unindent()
-        print(file=out)
+        #print(file=out)
 
         print("begin", file=out)
-        print(file=out)
+        #print(file=out)
         Program.indent()
 
         self.__stmnt_seq.print(out)
 
         Program.unindent()
-        print(file=out)
+        #print(file=out)
         print("end", file=out)
-        print(file=out)
+        #print(file=out)
 
 
     def execute(self):
@@ -272,7 +273,7 @@ class IdList(Node):
             print(", ", file=out, end="")
             self.__id_list.print(out)
 
-    def execute(self)
+    def execute(self):
 
         values = []
         values.append(self.__id.execute())
@@ -343,9 +344,9 @@ class Stmnt(Node):
         if self.__alternative == 0:
             self.__assign.execute()
         elif self.__alternative == 1:
-            self.__if.parse()
+            self.__if.execute()
         elif self.__alternative == 2:
-            self.__loop.parse()
+            self.__loop.execute()
         elif self.__alternative == 3:
             self.__in.execute()
         elif self.__alternative == 4:
@@ -447,7 +448,7 @@ class If(Node):
 
 
     def print(self, out):
-        print(file=out)
+        #print(file=out)
         for i in range(Program.indentation_level):
             print("\t", file=out, end="")
 
@@ -528,7 +529,7 @@ class Loop(Node):
 
 
     def print(self, out):
-        print(file=out)
+        #print(file=out)
         for i in range(Program.indentation_level):
             print("\t", file=out, end="")
 
@@ -545,7 +546,7 @@ class Loop(Node):
             print("\t", file=out, end="")
 
         print("end", file=out)
-        print(file=out)
+        #print(file=out)
         
 
 
@@ -716,7 +717,18 @@ class Cond(Node):
             print("]", file=out, end="")
 
     def execute(self):
-        pass
+        condition = True
+
+        if self.__alternative == 0:
+            condition = self.__comp.execute()
+        elif self.__alternative == 1:
+            condition = not self.__cond.execute()
+        elif self.__alternative == 2:
+            condition = self.__cond.execute() and self.__cond2.execute()
+        elif self.__alternative == 3:
+            condition = self.__cond.execute() or self.__cond2.execute()
+
+        return condition
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -766,7 +778,24 @@ class Comp(Node):
         print(")", file=out, end="")
 
     def execute(self):
-        pass
+        
+        val1 = self.__op.execute()
+        val2 = self.__op2.execute()
+        comp_op = self.__comp_op.execute()
+
+
+        if comp_op == "==":
+            return val1 == val2
+        elif comp_op == ">":
+            return val1 > val2
+        elif comp_op == "<":
+            return val1 < val2
+        elif comp_op == "!=":
+            return val1 != val2
+        elif comp_op == "<=":
+            return val1 <= val2
+        elif comp_op == ">=":
+            return val1 >= val2
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -814,7 +843,14 @@ class Exp(Node):
 
 
     def execute(self):
-        pass
+        fac = self.__fac.execute()
+
+        if self.__alternative == 0:
+            return fac
+        elif self.__alternative == 1:
+            return fac + self.__exp.execute()
+        elif self.__alternative == 2:
+            return fac - self.__exp.execute()
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -854,7 +890,12 @@ class Fac(Node):
             self.__fac.print(out)
 
     def execute(self):
-        pass
+        op = self.__op.execute()
+
+        if self.__alternative == 0:
+            return op
+        elif self.__alternative == 1:
+            return op * self.__fac.execute()
 
 class Op(Node):
 
@@ -895,7 +936,14 @@ class Op(Node):
             print(")", file=out, end="")
 
     def execute(self):
-        pass
+        
+        if self.__alternative == 0:
+            return self.__int.execute()
+        elif self.__alternative == 1:
+            return Id.get(self.__id.execute())
+        elif self.__alternative == 2:
+            return self.__exp.execute()
+            
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -926,7 +974,7 @@ class CompOp(Node):
         print(f" {self.__comp} ", file=out, end="")
 
     def execute(self):
-        pass
+        return self.__comp
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -1003,7 +1051,7 @@ class Int(Node):
         if token != TOKEN_MAP.get("integer"):
             Id.__parseError("integer", list(TOKEN_MAP)[token - 1])
 
-        self.__int = tokenizer.intVal()
+        self.__int = int(tokenizer.intVal())
         
 
         tokenizer.skipToken()

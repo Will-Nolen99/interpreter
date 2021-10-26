@@ -4,7 +4,7 @@ from NonTerminals import *
 
 def interpret():
 
-    tokenizer = Tokenizer("test.txt")
+    tokenizer = Tokenizer("primes.txt")
 
     core_program = Program()
     core_program.parse(tokenizer)
@@ -12,6 +12,8 @@ def interpret():
     outputFile = open("output.txt", 'w')
     core_program.print(outputFile)
     outputFile.close()
+
+    core_program.execute()
 
 
 if __name__ == "__main__":

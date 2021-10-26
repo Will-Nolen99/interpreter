@@ -1,0 +1,24 @@
+program
+
+int FIB1, FIB2, BOUND, NEXT;
+
+begin
+
+FIB1 = 0;
+FIB2 = 1;
+BOUND = 10000000;
+FIB = 0;
+
+write FIB;
+FIB = 1;
+write FIB;
+
+while (FIB < BOUND) loop
+
+FIB = FIB1 + FIB2;
+FIB1 = FIB2;
+FIB2 = FIB;
+write FIB;
+
+end
+end
