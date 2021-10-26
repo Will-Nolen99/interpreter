@@ -41,6 +41,7 @@ TOKEN_MAP = {"program": 1,
 class Program(Node):
 
     indentation_level = 0
+    mode = "Declaration"
 
     def __init__(self):
 
@@ -99,7 +100,9 @@ class Program(Node):
 
 
     def execute(self):
-        pass
+        self.__decl_seq.execute()
+        Program.changeToStatements()
+        self.__stmnt_seq.execute()
 
     @staticmethod
     def indent():
@@ -108,6 +111,10 @@ class Program(Node):
     @staticmethod
     def unindent():
         Program.indentation_level -= 1
+
+    @staticmethod
+    def changeToStatements():
+        Program.mode = "statements"
 
 
 
@@ -151,7 +158,9 @@ class DeclSeq(Node):
         
 
     def execute(self):
-        pass
+        self.__decl.execute()
+        if self.__alternative == 1:
+            self.__declSeq.execute()
 
 
 class StmntSeq(Node):
@@ -186,7 +195,9 @@ class StmntSeq(Node):
         
 
     def execute(self):
-        pass
+        self.__stmnt.execute()
+        if self.__alternative == 1:
+            self.__stmntSeq.execute()
 
 
 class Decl(Node):
@@ -222,7 +233,7 @@ class Decl(Node):
         print(";", file=out)
 
     def execute(self):
-        pass
+        self.__id_list.execute()
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -261,8 +272,14 @@ class IdList(Node):
             print(", ", file=out, end="")
             self.__id_list.print(out)
 
-    def execute(self):
-        pass
+    def execute(self)
+
+        values = []
+        values.append(self.__id.execute())
+        if self.__alternative == 1:
+            values = values + self.__id_list.execute()
+        
+        return values
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -323,7 +340,16 @@ class Stmnt(Node):
             self.__out.print(out)
 
     def execute(self):
-        pass
+        if self.__alternative == 0:
+            self.__assign.execute()
+        elif self.__alternative == 1:
+            self.__if.parse()
+        elif self.__alternative == 2:
+            self.__loop.parse()
+        elif self.__alternative == 3:
+            self.__in.execute()
+        elif self.__alternative == 4:
+            self.__out.execute()
 
 
 class Assign(Node):
@@ -363,7 +389,9 @@ class Assign(Node):
         print(";", file=out)
 
     def execute(self):
-        pass
+        variable_name = self.__id.execute()
+        value = self.__exp.execute()
+        Id.set(variable_name, value)
 
 
     @staticmethod
@@ -451,7 +479,11 @@ class If(Node):
         
 
     def execute(self):
-        pass
+        
+        if self.__cond.execute():
+            self.__stmnt_seq.execute()
+        elif self.__alternative == 1:
+            self.__else_stmnt_seq.execute()
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -520,7 +552,8 @@ class Loop(Node):
 
 
     def execute(self):
-        pass
+        while self.__cond.execute():
+            self.__stmnt_seq.execute()
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -602,7 +635,11 @@ class Out(Node):
         
 
     def execute(self):
-        pass
+        names = self.__id_list.execute()
+
+        for name in names:
+            value = Id.get(name)
+            print(f"{name} = {value}")
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -901,6 +938,8 @@ class CompOp(Node):
 
 class Id(Node):
 
+    __variables = {}
+
     def __init__(self):
         self.__id = None
 
@@ -919,7 +958,7 @@ class Id(Node):
         print(self.__id, file=out, end="")
 
     def execute(self):
-        pass
+        return self.__id
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -927,6 +966,30 @@ class Id(Node):
             print(f"Expected '{expectedToken}' found '{recievedToken}'")
             print("Terminating")
             exit()
+
+    @staticmethod
+    def set(variable, value=None):
+        if Program.mode == "statment":
+            if variable in Id.__variables:
+                Id.__variables[variable] = value
+            else:
+                print(f"Variable '{variable}'  is undefined")
+                exit()
+        else:
+            Id.__variables[variable] = value
+
+    @staticmethod
+    def get(variable):
+        if variable in Id.__variables:
+            if Id.__variables[variable] is not None:   
+                return Id.__variables[variable]
+            else:
+                print(f"Variable '{variable}'  has not been initialized")
+                exit()
+        else:
+                print(f"Variable '{variable}'  is undefined")
+                exit()
+
 
 
 class Int(Node):
@@ -949,7 +1012,7 @@ class Int(Node):
         print(self.__int, file=out, end="")
 
     def execute(self):
-        pass
+        return self.__int
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
