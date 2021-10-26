@@ -42,7 +42,7 @@ TOKEN_MAP = {"program": 1,
 class Program(Node):
 
     indentation_level = 0
-    mode = "Declaration"
+    mode = "declaration"
 
     def __init__(self):
 
@@ -76,33 +76,43 @@ class Program(Node):
 
         tokenizer.skipToken()
 
+    
+        token = tokenizer.getToken()
+        if token != TOKEN_MAP.get("EOF"):
+            print("Token found after end of program")
+            print("terminating")
+            exit()
+                
 
-    def print(self, out):
+
+    def print(self):
         
-        print("program", file=out)
-        #print(file=out)
+        print()
+        print("program")
+        
         Program.indent()
 
-        self.__decl_seq.print(out)
+        self.__decl_seq.print()
 
         Program.unindent()
-        #print(file=out)
+        
 
-        print("begin", file=out)
-        #print(file=out)
+        print("begin")
+        
         Program.indent()
 
-        self.__stmnt_seq.print(out)
+        self.__stmnt_seq.print()
 
         Program.unindent()
-        #print(file=out)
-        print("end", file=out)
-        #print(file=out)
+        
+        print("end")
+        
+        print()
 
 
     def execute(self):
         self.__decl_seq.execute()
-        Program.changeToStatements()
+        Program.changeToStatement()
         self.__stmnt_seq.execute()
 
     @staticmethod
@@ -114,8 +124,16 @@ class Program(Node):
         Program.indentation_level -= 1
 
     @staticmethod
-    def changeToStatements():
-        Program.mode = "statements"
+    def changeToStatement():
+        Program.mode = "statement"
+
+    @staticmethod
+    def setInputFile(fname):
+        if len(fname) > 0:
+            In.read_input(fname)
+
+
+    
 
 
 
@@ -151,10 +169,10 @@ class DeclSeq(Node):
             self.__alternative = 0
 
 
-    def print(self, out):
-        self.__decl.print(out)
+    def print(self):
+        self.__decl.print()
         if self.__alternative == 1:
-            self.__declSeq.print(out)
+            self.__declSeq.print()
 
         
 
@@ -187,11 +205,11 @@ class StmntSeq(Node):
 
 
 
-    def print(self, out):
+    def print(self):
         
-        self.__stmnt.print(out)
+        self.__stmnt.print()
         if self.__alternative == 1:
-            self.__stmntSeq.print(out)
+            self.__stmntSeq.print()
 
         
 
@@ -225,16 +243,18 @@ class Decl(Node):
         tokenizer.skipToken()
 
 
-    def print(self, out):
+    def print(self):
         
         for i in range(Program.indentation_level):
-            print("\t", file=out, end="")
-        print("int", file=out, end=" ")
-        self.__id_list.print(out)
-        print(";", file=out)
+            print("\t", end="")
+        print("int", end=" ")
+        self.__id_list.print()
+        print(";")
 
     def execute(self):
-        self.__id_list.execute()
+        names = self.__id_list.execute()
+        for name in names:
+            Id.set(name)
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -266,12 +286,12 @@ class IdList(Node):
             self.__id_list.parse(tokenizer)
 
 
-    def print(self, out):
-        self.__id.print(out)
+    def print(self):
+        self.__id.print()
 
         if self.__alternative == 1:
-            print(", ", file=out, end="")
-            self.__id_list.print(out)
+            print(", ", end="")
+            self.__id_list.print()
 
     def execute(self):
 
@@ -328,17 +348,17 @@ class Stmnt(Node):
             self.__assign.parse(tokenizer)
             self.__alternative = 0
 
-    def print(self, out):
+    def print(self):
         if self.__alternative == 0:
-            self.__assign.print(out)
+            self.__assign.print()
         elif self.__alternative == 1:
-            self.__if.print(out)
+            self.__if.print()
         elif self.__alternative == 2:
-            self.__loop.print(out)
+            self.__loop.print()
         elif self.__alternative == 3:
-            self.__in.print(out)
+            self.__in.print()
         elif self.__alternative == 4:
-            self.__out.print(out)
+            self.__out.print()
 
     def execute(self):
         if self.__alternative == 0:
@@ -380,14 +400,14 @@ class Assign(Node):
 
 
             
-    def print(self, out):
+    def print(self):
         for i in range(Program.indentation_level):
-            print("\t", file=out, end="")
-        self.__id.print(out)
-        print(" = ", file=out, end="")
-        self.__exp.print(out)
+            print("\t", end="")
+        self.__id.print()
+        print(" = ", end="")
+        self.__exp.print()
 
-        print(";", file=out)
+        print(";")
 
     def execute(self):
         variable_name = self.__id.execute()
@@ -445,36 +465,42 @@ class If(Node):
 
         tokenizer.skipToken()
 
+        token = tokenizer.getToken()
+        if token != TOKEN_MAP.get(";"):
+            If.__parseError(";", list(TOKEN_MAP)[token - 1])
+        tokenizer.skipToken()
 
 
-    def print(self, out):
-        #print(file=out)
-        for i in range(Program.indentation_level):
-            print("\t", file=out, end="")
 
-        print("if ", file=out, end="")
+
+    def print(self):
         
-        self.__cond.print(out)
-        print(" then", file=out)
+        for i in range(Program.indentation_level):
+            print("\t", end="")
+
+        print("if ", end="")
+        
+        self.__cond.print()
+        print(" then")
 
         Program.indent()
 
-        self.__stmnt_seq.print(out)
+        self.__stmnt_seq.print()
 
         Program.unindent()
 
         if self.__alternative == 1:
 
             for i in range(Program.indentation_level):
-                print("\t", file=out, end="")
-            print("else", file=out)
+                print("\t", end="")
+            print("else")
             Program.indent()
-            self.__else_stmnt_seq.print(out)
+            self.__else_stmnt_seq.print()
             Program.unindent()
 
         for i in range(Program.indentation_level):
-            print("\t", file=out, end="")
-        print("end", file=out)
+            print("\t", end="")
+        print("end;")
         
 
         
@@ -526,27 +552,34 @@ class Loop(Node):
             Loop.__parseError("end", list(TOKEN_MAP)[token - 1])
 
         tokenizer.skipToken()
+        token = tokenizer.getToken()
+        if token != TOKEN_MAP.get(";"):
+            Loop.__parseError(";", list(TOKEN_MAP)[token - 1])
+        tokenizer.skipToken()
 
 
-    def print(self, out):
-        #print(file=out)
+
+
+    def print(self):
+        
         for i in range(Program.indentation_level):
-            print("\t", file=out, end="")
+            print("\t", end="")
 
-        print("while ", file=out, end="")
-        self.__cond.print(out)
-        print(" loop", file=out)
+        print("while ", end="")
+        self.__cond.print()
+        print(" loop")
         Program.indent()
 
-        self.__stmnt_seq.print(out)
+        self.__stmnt_seq.print()
 
         Program.unindent()
 
         for i in range(Program.indentation_level):
-            print("\t", file=out, end="")
+            print("\t", end="")
 
-        print("end", file=out)
-        #print(file=out)
+        print("end;")
+        
+
         
 
 
@@ -564,6 +597,8 @@ class Loop(Node):
             exit()
 
 class In(Node):
+
+    __input_lines = []
 
     def __init__(self):
         self.__id_list = None
@@ -584,18 +619,33 @@ class In(Node):
         tokenizer.skipToken()
 
 
-    def print(self, out):
+    def print(self):
         
         for i in range(Program.indentation_level):
-            print("\t", file=out, end="")
+            print("\t", end="")
 
-        print("read ", file=out, end="")
-        self.__id_list.print(out)
-        print(";", file=out)
+        print("read ", end="")
+        self.__id_list.print()
+        print(";")
         
 
     def execute(self):
-        pass
+        names = self.__id_list.execute()
+        for name in names:
+            if len(In.__input_lines) > 0:
+                Id.set(name, In.__input_lines.pop(0))
+            else:
+                print("Program ran out of input data while in execution")
+                print("Terminating")
+                exit()
+
+        
+    @staticmethod
+    def read_input(fname):
+        with open(fname, 'r') as f:
+            In.__input_lines = f.read().splitlines()
+            In.__input_lines = [int(x) for x in In.__input_lines]
+
 
     @staticmethod
     def __parseError(expectedToken, recievedToken):
@@ -625,14 +675,14 @@ class Out(Node):
 
         tokenizer.skipToken()
 
-    def print(self, out):
+    def print(self):
         
         for i in range(Program.indentation_level):
-            print("\t", file=out, end="")
+            print("\t", end="")
 
-        print("write ", file=out, end="")
-        self.__id_list.print(out)
-        print(";", file=out)
+        print("write ", end="")
+        self.__id_list.print()
+        print(";")
         
 
     def execute(self):
@@ -695,26 +745,26 @@ class Cond(Node):
                 Cond.__parseError("]", list(TOKEN_MAP)[token - 1])
             tokenizer.skipToken()
 
-    def print(self, out):
+    def print(self):
         
         if self.__alternative == 0:
-            self.__comp.print(out)
+            self.__comp.print()
         elif self.__alternative == 1:
-            print("!", file=out, end="")
-            self.__cond.print(out)
+            print("!", end="")
+            self.__cond.print()
         elif self.__alternative == 2:
-            print("[", file=out, end="")
-            self.__cond.print(out)
-            print(" && ", file=out, end="")
-            self.__cond2.print(out)
-            print("]", file=out, end="")
+            print("[", end="")
+            self.__cond.print()
+            print(" && ", end="")
+            self.__cond2.print()
+            print("]", end="")
 
         elif self.__alternative == 3:
-            print("[", file=out, end="")
-            self.__cond.print(out)
-            print(" || ", file=out, end="")
-            self.__cond2.print(out)
-            print("]", file=out, end="")
+            print("[", end="")
+            self.__cond.print()
+            print(" || ", end="")
+            self.__cond2.print()
+            print("]", end="")
 
     def execute(self):
         condition = True
@@ -770,12 +820,12 @@ class Comp(Node):
 
 
 
-    def print(self, out):
-        print("(", file=out, end="")
-        self.__op.print(out)
-        self.__comp_op.print(out)
-        self.__op2.print(out)
-        print(")", file=out, end="")
+    def print(self):
+        print("(", end="")
+        self.__op.print()
+        self.__comp_op.print()
+        self.__op2.print()
+        print(")", end="")
 
     def execute(self):
         
@@ -829,16 +879,16 @@ class Exp(Node):
 
             
 
-    def print(self, out):
+    def print(self):
         
-        self.__fac.print(out)
+        self.__fac.print()
 
         if self.__alternative == 1:
-            print(" + ", file=out, end="")
-            self.__exp.print(out)
+            print(" + ", end="")
+            self.__exp.print()
         elif self.__alternative == 2:
-            print(" - ", file=out, end="")
-            self.__exp.print(out)
+            print(" - ", end="")
+            self.__exp.print()
         
 
 
@@ -882,12 +932,12 @@ class Fac(Node):
             self.__fac.parse(tokenizer)
 
 
-    def print(self, out):
-        self.__op.print(out)
+    def print(self):
+        self.__op.print()
 
         if self.__alternative == 1:
-            print(" * ", file=out, end="")
-            self.__fac.print(out)
+            print(" * ", end="")
+            self.__fac.print()
 
     def execute(self):
         op = self.__op.execute()
@@ -925,15 +975,15 @@ class Op(Node):
             if token == TOKEN_MAP.get(")"):
                 Op.__parse(")", list(TOKEN_MAP)[token - 1])
 
-    def print(self, out):
+    def print(self):
         if self.__alternative == 0:
-            self.__int.print(out)
+            self.__int.print()
         elif self.__alternative == 1:
-            self.__id.print(out)
+            self.__id.print()
         elif self.__alternative == 2:
-            print("(", file=out, end="")
-            self.__exp.print(out)
-            print(")", file=out, end="")
+            print("(", end="")
+            self.__exp.print()
+            print(")", end="")
 
     def execute(self):
         
@@ -970,8 +1020,8 @@ class CompOp(Node):
 
 
 
-    def print(self, out):
-        print(f" {self.__comp} ", file=out, end="")
+    def print(self):
+        print(f" {self.__comp} ", end="")
 
     def execute(self):
         return self.__comp
@@ -999,11 +1049,16 @@ class Id(Node):
 
         self.__id = tokenizer.idName()
 
+        if len(self.__id) > 8:
+            print(f"Identifier {self.__id} is too long")
+            print("Terminating")
+            exit()
+
         tokenizer.skipToken()
         
 
-    def print(self, out):
-        print(self.__id, file=out, end="")
+    def print(self):
+        print(self.__id, end="")
 
     def execute(self):
         return self.__id
@@ -1017,17 +1072,28 @@ class Id(Node):
 
     @staticmethod
     def set(variable, value=None):
-        if Program.mode == "statment":
+
+  
+        if Program.mode == "statement":
+
             if variable in Id.__variables:
+
+
                 Id.__variables[variable] = value
             else:
                 print(f"Variable '{variable}'  is undefined")
                 exit()
-        else:
+        elif Program.mode == "declaration":
+            
+            if variable in Id.__variables:
+                print(f"{variable} has already been declared")
+                exit()
+
             Id.__variables[variable] = value
 
     @staticmethod
     def get(variable):
+       
         if variable in Id.__variables:
             if Id.__variables[variable] is not None:   
                 return Id.__variables[variable]
@@ -1056,8 +1122,8 @@ class Int(Node):
 
         tokenizer.skipToken()
 
-    def print(self, out):
-        print(self.__int, file=out, end="")
+    def print(self):
+        print(self.__int, end="")
 
     def execute(self):
         return self.__int

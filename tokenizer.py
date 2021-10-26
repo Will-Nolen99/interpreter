@@ -209,6 +209,15 @@ class Tokenizer:
                 line = line[end_idx:]
 
 
+        if line == "end;":
+            self.token_stream.append(3)
+            self.token_stream_literal.append("end")
+            self.token_stream.append(12)
+            self.token_stream_literal.append(";")
+            line = line[4:]
+
+        
+
         # By this point if there are characters left in the line they are not a recognizable token
         if len(line) > 0:
             # print error message if token is not recognized and exit process

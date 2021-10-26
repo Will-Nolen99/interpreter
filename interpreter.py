@@ -1,18 +1,21 @@
 from tokenizer import Tokenizer
 from NonTerminals import *
+import sys
 
 
 def interpret():
 
-    tokenizer = Tokenizer("primes.txt")
+    input_file = ""
+    core_source = sys.argv[1]
+    if len(sys.argv) > 2:
+        input_file = sys.argv[2]
+
+    tokenizer = Tokenizer(core_source)
 
     core_program = Program()
+    Program.setInputFile(input_file)
     core_program.parse(tokenizer)
-
-    outputFile = open("output.txt", 'w')
-    core_program.print(outputFile)
-    outputFile.close()
-
+    core_program.print()
     core_program.execute()
 
 

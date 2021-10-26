@@ -1,0 +1,16 @@
+program
+
+int ONE, TWO, THREE, FOUR;
+
+
+begin
+
+read ONE, TWO;
+read THREE, FOUR;
+write ONE, TWO, THREE, FOUR;
+
+TWO = ONE + TWO;
+write TWO;
+
+
+end

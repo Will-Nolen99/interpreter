@@ -1,27 +1,27 @@
 program
-	int COUNT, DIVISOR, BOOLEAN, BOUND, INCREMENT, TEST;
+	int COUNT, DIVISOR, BOOLEAN, BOUND, INC, TEST;
 begin
 	BOUND = 1000;
 	COUNT = 2;
 	DIVISOR = 2;
 	BOOLEAN = 1;
-	INCREMENT = 2;
+	INC = 2;
 	while (COUNT < BOUND) loop
 		BOOLEAN = 1;
-		INCREMENT = 2;
-		while (INCREMENT < COUNT) loop
+		INC = 2;
+		while [(INC < COUNT) && (BOOLEAN == 1)] loop
 			DIVISOR = 0;
 			while (DIVISOR <= COUNT) loop
 				if (DIVISOR == COUNT) then
 					BOOLEAN = 0;
-				end
-				DIVISOR = DIVISOR + INCREMENT;
-			end
-			INCREMENT = INCREMENT + 1;
-		end
+				end;
+				DIVISOR = DIVISOR + INC;
+			end;
+			INC = INC + 1;
+		end;
 		if (BOOLEAN == 1) then
 			write COUNT;
-		end
+		end;
 		COUNT = COUNT + 1;
-	end
+	end;
 end

@@ -1,4 +1,12 @@
-program int X; int YELLOW15; int Z; int A, BARK35, CAT; begin while (X>5) loop write X; end X=25; YELLOW15=11 + 5 + 4 * 2 * 2 * 2 * 2 - 3; Z = 0; BARK35=350; read CAT, A; if ![(X>5)||(Z>0)] then X=10*YELLOW15; else write BARK35; end while (X>5) loop write X; end end
 
-
-
+program
+int X1, X4;
+int X2, X3, X7;
+begin
+X1 = 0; X2 = 1; X3 = 1; read X4;
+while (X1<X4) loop
+                X7=X2+X3; X2=X3;
+                X3=X7; X1=X1+1;
+              end;
+write X2;
+end

@@ -1,6 +1,6 @@
 program
 
-int FIB1, FIB2, BOUND, NEXT;
+int FIB1, FIB2, BOUND, NEXT, FIB;
 
 begin
 
@@ -20,5 +20,5 @@ FIB1 = FIB2;
 FIB2 = FIB;
 write FIB;
 
-end
+end;
 end
