@@ -1,5 +1,5 @@
 from typing import ValuesView
-from Node import Node
+
 from tokenizer import Tokenizer
 
 
@@ -39,7 +39,7 @@ TOKEN_MAP = {"program": 1,
              "EOF": 33 }
 
 
-class Program(Node):
+class Program():
 
     indentation_level = 0
     mode = "declaration"
@@ -133,10 +133,6 @@ class Program(Node):
             In.read_input(fname)
 
 
-    
-
-
-
     @staticmethod
     def __parseError(expectedToken, recievedToken, line):
             print("Invalid token found in parse program.")
@@ -146,7 +142,7 @@ class Program(Node):
 
 
 
-class DeclSeq(Node):
+class DeclSeq():
 
     def __init__(self):
         
@@ -182,7 +178,7 @@ class DeclSeq(Node):
             self.__declSeq.execute()
 
 
-class StmntSeq(Node):
+class StmntSeq():
 
     def __init__(self):
         
@@ -219,7 +215,7 @@ class StmntSeq(Node):
             self.__stmntSeq.execute()
 
 
-class Decl(Node):
+class Decl():
 
     def __init__(self):
         self.__id_list = None
@@ -264,7 +260,7 @@ class Decl(Node):
             exit()
 
 
-class IdList(Node):
+class IdList():
 
     def __init__(self):
         self.__id = None
@@ -310,7 +306,7 @@ class IdList(Node):
             exit()
 
 
-class Stmnt(Node):
+class Stmnt():
 
     def __init__(self):
         self.__assign = None
@@ -373,7 +369,7 @@ class Stmnt(Node):
             self.__out.execute()
 
 
-class Assign(Node):
+class Assign():
 
     def __init(self):
         self.__id = None
@@ -423,7 +419,7 @@ class Assign(Node):
             exit()
 
 
-class If(Node):
+class If():
 
     def __init__(self):
         self.__cond = None
@@ -520,7 +516,7 @@ class If(Node):
             exit()
 
 
-class Loop(Node):
+class Loop():
 
     def __init__(self):
         self.__cond = None
@@ -596,7 +592,7 @@ class Loop(Node):
             print("Terminating")
             exit()
 
-class In(Node):
+class In():
 
     __input_lines = []
 
@@ -654,7 +650,7 @@ class In(Node):
             print("Terminating")
             exit()
 
-class Out(Node):
+class Out():
 
     def __init__(self):
         self.__id_list = None
@@ -700,7 +696,7 @@ class Out(Node):
             exit()
 
 
-class Cond(Node):
+class Cond():
 
     def __init__(self):
         self.__comp = None
@@ -787,7 +783,7 @@ class Cond(Node):
             print("Terminating")
             exit()
 
-class Comp(Node):
+class Comp():
 
     def __init__(self):
         self.__op = None
@@ -854,7 +850,7 @@ class Comp(Node):
             print("Terminating")
             exit()
 
-class Exp(Node):
+class Exp():
 
     def __init__(self):
         self.__fac = None
@@ -910,7 +906,7 @@ class Exp(Node):
             exit()
 
 
-class Fac(Node):
+class Fac():
 
     def __init__(self):
         self.__fac = None
@@ -947,7 +943,7 @@ class Fac(Node):
         elif self.__alternative == 1:
             return op * self.__fac.execute()
 
-class Op(Node):
+class Op():
 
     def __init__(self):
         self.__alternative = None
@@ -1002,7 +998,7 @@ class Op(Node):
             print("Terminating")
             exit()
 
-class CompOp(Node):
+class CompOp():
 
     def __init__(self):
         self.__comp = None
@@ -1034,7 +1030,7 @@ class CompOp(Node):
             exit()
 
 
-class Id(Node):
+class Id():
 
     __variables = {}
 
@@ -1106,7 +1102,7 @@ class Id(Node):
 
 
 
-class Int(Node):
+class Int():
 
     def __init__(self):
         self.__int = None
