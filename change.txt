@@ -1,0 +1,40 @@
+program
+
+    int DOLLAR, QUARTER, DIME, NICKEL, PENNY, AMOUNT;
+
+begin
+
+        AMOUNT = 46543;
+        DOLLAR = 0;
+        QUARTER = 0;
+        DIME = 0;
+        NICKEL = 0;
+        PENNY = 0;
+
+        while (AMOUNT > 100) loop
+            DOLLAR = DOLLAR + 1;
+            AMOUNT = AMOUNT - 100;
+        end;
+
+        while (AMOUNT > 25) loop
+            QUARTER = QUARTER + 1;
+            AMOUNT = AMOUNT - 25;
+        end;
+
+        while (AMOUNT > 10) loop
+            DIME = DIME + 1;
+            AMOUNT = AMOUNT - 10;
+        end;
+
+        while (AMOUNT > 5) loop
+            NICKEL = NICKEL + 1;
+            AMOUNT = AMOUNT - 5;
+        end;
+
+        PENNY = AMOUNT;
+
+        write DOLLAR, QUARTER, DIME, NICKEL, PENNY;
+
+
+
+end

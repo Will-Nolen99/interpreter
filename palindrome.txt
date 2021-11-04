@@ -1,0 +1,9 @@
+program
+
+    int PALIND;
+
+begin
+
+    PALIND = 102201
+
+end

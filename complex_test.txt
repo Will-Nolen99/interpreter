@@ -1,0 +1,27 @@
+program
+  int X;
+  int Y;
+  int ABC, DEF;
+begin
+  X = 50;
+  Y = 45;
+
+  read Y, ABC, DEF;
+
+    write X, Y, ABC, DEF;
+
+    if !(X >= 50) then
+      X = X * 2 + 100;
+    else
+      write X;
+    end;
+
+    X = 0 - 5;
+    while [(Y >= 40) || ((X * X) >= 25)] loop
+      Y = Y - 1;
+      X = X + 1;
+    end;
+
+    write X, Y;
+
+end

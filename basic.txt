@@ -11,14 +11,14 @@ X = 10;
 while (COUNT < 10) loop
 
 
-    if (COUNT == 5) then
+    if (COUNT >= 5) then
         write X;
-    end
+    end;
 write COUNT;
 
 COUNT = COUNT + 1;
 
-end
+end;
 
 
 end

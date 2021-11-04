@@ -1,7 +1,7 @@
 from typing import ValuesView
-
 from tokenizer import Tokenizer
 
+# This file contains each non-terminal node class for the core language
 
 # list of set tokens used in the core programming language
 TOKEN_MAP = {"program": 1, 
@@ -41,42 +41,46 @@ TOKEN_MAP = {"program": 1,
 
 class Program():
 
+    #Keeps track off indentation for pretty printing
     indentation_level = 0
+
+    #Keeps track of mode for declaration erorrs
     mode = "declaration"
 
     def __init__(self):
-
         self.__decl_seq = None
         self.__stmnt_seq = None
 
-
     def parse(self, tokenizer):
         
+        #program must be first token in valid core program
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("program"):
             Program.__parseError("program", list(TOKEN_MAP)[token - 1])
-
         tokenizer.skipToken()
 
+        #Create declaration sequence
         self.__decl_seq = DeclSeq()
         self.__decl_seq.parse(tokenizer)
 
+        #Begin token must be affter declaration sequence
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("begin"):
             Program.__parseError("begin", list(TOKEN_MAP)[token - 1])
-
         tokenizer.skipToken()
 
+        #Create statement sequence
         self.__stmnt_seq = StmntSeq()
         self.__stmnt_seq.parse(tokenizer)
 
+        #program must end with end token
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("end"):
             Program.__parseError("end", list(TOKEN_MAP)[token - 1])
-
         tokenizer.skipToken()
 
-    
+
+        #Make sure EOF is found from tokenizer for legal program
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("EOF"):
             print("Token found after end of program")
@@ -89,29 +93,20 @@ class Program():
         
         print()
         print("program")
-        
         Program.indent()
-
         self.__decl_seq.print()
-
         Program.unindent()
-        
-
         print("begin")
-        
         Program.indent()
-
         self.__stmnt_seq.print()
-
         Program.unindent()
-        
         print("end")
-        
         print()
 
 
     def execute(self):
         self.__decl_seq.execute()
+        #Program is not switched to statment mode
         Program.changeToStatement()
         self.__stmnt_seq.execute()
 
@@ -129,6 +124,7 @@ class Program():
 
     @staticmethod
     def setInputFile(fname):
+        # if len > 0 an input file has been supplied
         if len(fname) > 0:
             In.read_input(fname)
 
@@ -155,7 +151,7 @@ class DeclSeq():
         self.__decl = Decl()
         self.__decl.parse(tokenizer)
 
-
+        #Declaration sequence must start with int keyword
         token = tokenizer.getToken()
         if token == TOKEN_MAP.get("int"):
             self.__alternative = 1
@@ -170,7 +166,6 @@ class DeclSeq():
         if self.__alternative == 1:
             self.__declSeq.print()
 
-        
 
     def execute(self):
         self.__decl.execute()
@@ -192,22 +187,19 @@ class StmntSeq():
 
         token = tokenizer.getToken()
         
-        if token == TOKEN_MAP.get("end") or token == TOKEN_MAP.get("else"):  #Stmnt Seq are always followed by end or else
+        #Stmnt Seq are always followed by end or else use this to determine alternative
+        if token == TOKEN_MAP.get("end") or token == TOKEN_MAP.get("else"):  
             self.__alternative == 0
         else:
             self.__stmntSeq = StmntSeq()
             self.__stmntSeq.parse(tokenizer)
             self.__alternative = 1
 
-
-
     def print(self):
         
         self.__stmnt.print()
         if self.__alternative == 1:
             self.__stmntSeq.print()
-
-        
 
     def execute(self):
         self.__stmnt.execute()
@@ -223,6 +215,8 @@ class Decl():
 
     def parse(self, tokenizer):
         token = tokenizer.getToken()
+
+        #Declaration must start with int keyword
         if token != TOKEN_MAP.get("int"):
             Decl.__parseError("int", list(TOKEN_MAP)[token - 1])
 
@@ -233,6 +227,7 @@ class Decl():
 
         token = tokenizer.getToken()
 
+        #Declaration must end with ;
         if token != TOKEN_MAP.get(";"):
             Decl.__parseError(";", list(TOKEN_MAP)[token - 1])
 
@@ -273,11 +268,12 @@ class IdList():
         self.__id.parse(tokenizer)
         self.__alternative = 0
         token = tokenizer.getToken()
+
+        #Id's in id list are seperated by a comma
         if token == TOKEN_MAP.get(","):
 
             tokenizer.skipToken()
             self.__alternative = 1
-            
             self.__id_list = IdList()
             self.__id_list.parse(tokenizer)
 
@@ -318,6 +314,7 @@ class Stmnt():
 
     def parse(self, tokenizer):
         
+        #The following if else structures determine the alternative of the statement
         token = tokenizer.getToken()
         if token == TOKEN_MAP.get("if"):
             self.__if = If()
@@ -339,6 +336,7 @@ class Stmnt():
             self.__out.parse(tokenizer)
             self.__alternative = 4
 
+        #Assign is the first alternative but is the hardest to check for so do it last
         else:
             self.__assign = Assign()
             self.__assign.parse(tokenizer)
@@ -380,6 +378,8 @@ class Assign():
         self.__id = Id()
         self.__id.parse(tokenizer)
 
+
+        # assignment is seperated by equals sign
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("="):
             Assign.__parseError("=", list(TOKEN_MAP)[token - 1])
@@ -389,6 +389,7 @@ class Assign():
         self.__exp = Exp()
         self.__exp.parse(tokenizer)
 
+        #assignment is ended with semicolon
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get(";"):
             Assign.__parseError(";", list(TOKEN_MAP)[token - 1])
@@ -429,6 +430,7 @@ class If():
 
     def parse(self, tokenizer):
         
+        #if begins with if token
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("if"):
             If.__parseError("if", list(TOKEN_MAP)[token - 1])
@@ -438,6 +440,7 @@ class If():
         self.__cond = Cond()
         self.__cond.parse(tokenizer)
 
+        #condition is followed by then token
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("then"):
             If.__parseError("then", list(TOKEN_MAP)[token - 1])
@@ -447,6 +450,7 @@ class If():
         self.__stmnt_seq = StmntSeq()
         self.__stmnt_seq.parse(tokenizer)
 
+        #determine alternative by looking at next token
         token = tokenizer.getToken()
         if token == TOKEN_MAP.get("else"):
             self.__alternative = 1
@@ -456,6 +460,7 @@ class If():
             
             token = tokenizer.getToken()
 
+        # if ends with end token followed by a ; token
         if token != TOKEN_MAP.get("end"):
             If.__parseError("end", list(TOKEN_MAP)[token - 1])
 
@@ -465,8 +470,6 @@ class If():
         if token != TOKEN_MAP.get(";"):
             If.__parseError(";", list(TOKEN_MAP)[token - 1])
         tokenizer.skipToken()
-
-
 
 
     def print(self):
@@ -499,8 +502,6 @@ class If():
         print("end;")
         
 
-        
-
     def execute(self):
         
         if self.__cond.execute():
@@ -524,6 +525,8 @@ class Loop():
 
 
     def parse(self, tokenizer):
+
+        #loop begins with while token
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("while"):
             Loop.__parseError("while", list(TOKEN_MAP)[token - 1])
@@ -533,7 +536,7 @@ class Loop():
         self.__cond = Cond()
         self.__cond.parse(tokenizer)
 
-
+        #after condition loop token expected
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("loop"):
             Loop.__parseError("loop", list(TOKEN_MAP)[token - 1])
@@ -543,6 +546,7 @@ class Loop():
         self.__stmnt_seq = StmntSeq()
         self.__stmnt_seq.parse(tokenizer)
 
+        #loop ends with end token followed by semicolon
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("end"):
             Loop.__parseError("end", list(TOKEN_MAP)[token - 1])
@@ -552,8 +556,6 @@ class Loop():
         if token != TOKEN_MAP.get(";"):
             Loop.__parseError(";", list(TOKEN_MAP)[token - 1])
         tokenizer.skipToken()
-
-
 
 
     def print(self):
@@ -576,11 +578,6 @@ class Loop():
         print("end;")
         
 
-        
-
-
-
-
     def execute(self):
         while self.__cond.execute():
             self.__stmnt_seq.execute()
@@ -594,6 +591,7 @@ class Loop():
 
 class In():
 
+    # hold lines of the input files
     __input_lines = []
 
     def __init__(self):
@@ -601,6 +599,7 @@ class In():
 
     def parse(self, tokenizer):
 
+        #in will start with read token
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("read"):
             In.__parseError("read", list(TOKEN_MAP)[token - 1])
@@ -609,6 +608,7 @@ class In():
         self.__id_list = IdList()
         self.__id_list.parse(tokenizer)
 
+        #in ends with a semicolon
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get(";"):
             In.__parseError(";", list(TOKEN_MAP)[token - 1])
@@ -627,6 +627,7 @@ class In():
 
     def execute(self):
         names = self.__id_list.execute()
+        #read in lines of data into idlist
         for name in names:
             if len(In.__input_lines) > 0:
                 Id.set(name, In.__input_lines.pop(0))
@@ -639,6 +640,7 @@ class In():
     @staticmethod
     def read_input(fname):
         with open(fname, 'r') as f:
+            #remove whitespace and turn strings into ints
             In.__input_lines = f.read().splitlines()
             In.__input_lines = [int(x) for x in In.__input_lines]
 
@@ -657,6 +659,7 @@ class Out():
 
     def parse(self, tokenizer):
 
+        #out must begin with write token
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get("write"):
             In.__parseError("write", list(TOKEN_MAP)[token - 1])
@@ -665,6 +668,7 @@ class Out():
         self.__id_list = IdList()
         self.__id_list.parse(tokenizer)
 
+        #write must end with semicolon after idlist
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get(";"):
             Out.__parseError(";", list(TOKEN_MAP)[token - 1])
@@ -706,6 +710,7 @@ class Cond():
 
     def parse(self, tokenizer):
         
+        #Based on the token, change the alternative
         token = tokenizer.getToken()
         if token == TOKEN_MAP.get("("):
             self.__alternative = 0
@@ -736,6 +741,7 @@ class Cond():
             self.__cond2 = Cond()
             self.__cond2.parse(tokenizer)
 
+            #if the condition began with [ it must end with ]
             token = tokenizer.getToken()
             if token != TOKEN_MAP.get("]"):
                 Cond.__parseError("]", list(TOKEN_MAP)[token - 1])
@@ -793,6 +799,7 @@ class Comp():
 
     def parse(self, tokenizer):
         token = tokenizer.getToken()
+        #comparizon must begin with (
         if token != TOKEN_MAP.get("("):
             Comp.__parseError("(", list(TOKEN_MAP)[token - 1])
 
@@ -807,13 +814,12 @@ class Comp():
         self.__op2 = Op()
         self.__op2.parse(tokenizer)
 
-
+        #Comparison must end with )
         token = tokenizer.getToken()
         if token != TOKEN_MAP.get(")"):
             Comp.__parseError(")", list(TOKEN_MAP)[token - 1])
 
         tokenizer.skipToken()
-
 
 
     def print(self):
@@ -828,7 +834,6 @@ class Comp():
         val1 = self.__op.execute()
         val2 = self.__op2.execute()
         comp_op = self.__comp_op.execute()
-
 
         if comp_op == "==":
             return val1 == val2
@@ -866,14 +871,13 @@ class Exp():
         token = tokenizer.getToken()
         self.__alternative = 0
 
+        #only + and - operations allowed in expression
         if token == TOKEN_MAP.get("+") or token == TOKEN_MAP.get("-"):
             self.__alternative = 1 if token == TOKEN_MAP.get("+") else 2
             tokenizer.skipToken()
             self.__exp = Exp()
             self.__exp.parse(tokenizer)
         
-
-            
 
     def print(self):
         
@@ -886,7 +890,6 @@ class Exp():
             print(" - ", end="")
             self.__exp.print()
         
-
 
     def execute(self):
         fac = self.__fac.execute()
@@ -921,6 +924,7 @@ class Fac():
 
         self.__alternative = 0
 
+        #factor is multiplication if the token is present
         if token == TOKEN_MAP.get("*"):
             self.__alternative = 1
             tokenizer.skipToken()
@@ -953,7 +957,7 @@ class Op():
 
     def parse(self, tokenizer):
         token = tokenizer.getToken()
-
+        # get the type of value on  the operation
         if token == TOKEN_MAP.get("integer"):
             self.__alternative = 0
             self.__int = Int()
@@ -968,8 +972,10 @@ class Op():
             self.__exp = Exp()
             self.__exp.parse(tokenizer)
             token = tokenizer.getToken()
-            if token == TOKEN_MAP.get(")"):
-                Op.__parse(")", list(TOKEN_MAP)[token - 1])
+            if token != TOKEN_MAP.get(")"):
+                Op.__parseError(")", list(TOKEN_MAP)[token - 1])
+
+            tokenizer.skipToken()
 
     def print(self):
         if self.__alternative == 0:
@@ -1069,16 +1075,16 @@ class Id():
     @staticmethod
     def set(variable, value=None):
 
-  
+        #if the mode is in statement, only values can be assigned
         if Program.mode == "statement":
 
             if variable in Id.__variables:
-
 
                 Id.__variables[variable] = value
             else:
                 print(f"Variable '{variable}'  is undefined")
                 exit()
+        #no values can be assigned in declaration mode.
         elif Program.mode == "declaration":
             
             if variable in Id.__variables:
@@ -1110,12 +1116,12 @@ class Int():
     def parse(self, tokenizer):
         token = tokenizer.getToken()
 
+        # see if  the correct token for integer is in the stream
         if token != TOKEN_MAP.get("integer"):
             Id.__parseError("integer", list(TOKEN_MAP)[token - 1])
 
         self.__int = int(tokenizer.intVal())
         
-
         tokenizer.skipToken()
 
     def print(self):

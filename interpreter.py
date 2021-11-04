@@ -1,5 +1,5 @@
 from tokenizer import Tokenizer
-from NonTerminals import *
+from NonTerminals import Program
 import sys
 
 

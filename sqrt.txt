@@ -1,0 +1,47 @@
+program
+
+int NUM, ITER, GUESS, HALF, PREV, COUNT, COPY, SQRT;
+
+
+begin
+
+    NUM = 225;
+    GUESS = 1;
+    PREV = 0;
+
+
+    while (GUESS != PREV) loop
+
+        PREV = GUESS;
+
+        COPY = NUM;
+        COUNT = 0;
+        while (COPY > 0) loop
+            COUNT = COUNT + 1;
+            COPY = COPY - GUESS;
+        end;
+
+        GUESS = GUESS + COUNT;
+
+        HALF = GUESS;
+
+        while ((HALF * 2) > GUESS) loop
+
+            HALF = HALF - 1;
+        end;
+
+        GUESS = HALF;
+
+        
+
+    end;
+
+
+SQRT = GUESS;
+
+write NUM, SQRT;
+
+
+
+
+end

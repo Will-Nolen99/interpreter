@@ -1,0 +1,62 @@
+program
+
+int BOUND, LONGEST, STREAK, ITER, VALUE, EVOD, HALF, LENGTH, TEST;
+begin
+
+ITER = 2;
+LONGEST = 0;
+STREAK = 0;
+BOUND = 30;
+VALUE = 0;
+TEST = 10000;
+
+
+while (ITER < BOUND) loop
+    VALUE = ITER;
+    LENGTH = 0;
+    
+    while (VALUE != 1) loop
+
+        EVOD = VALUE;
+
+        while (EVOD > 1) loop
+            EVOD = EVOD - 2;
+        end;
+
+
+        if (EVOD == 1) then
+
+            VALUE = 3 * VALUE;
+            VALUE = VALUE + 1;
+
+        else
+
+            HALF = VALUE;
+
+            while ((VALUE * 2) > HALF) loop
+                VALUE = VALUE - 1;
+            end;
+
+        end;
+
+
+        LENGTH = LENGTH + 1;
+    end;
+
+    LENGTH = LENGTH + 1;
+
+    if (LENGTH > STREAK) then
+        STREAK = LENGTH;
+        LONGEST = ITER;
+    end;
+
+
+    ITER = ITER + 1;
+end;
+
+write LONGEST, STREAK;
+
+
+
+
+end
